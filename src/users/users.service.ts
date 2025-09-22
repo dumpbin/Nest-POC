@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,11 +33,7 @@ export class UsersService {
   }
   update(
     id: number,
-    userUpdate: Partial<{
-      name: string;
-      email: string;
-      role: 'admin' | 'user' | 'superadmin';
-    }>,
+    userUpdate: UpdateUserDto, // Using UpdateUserDto to allow partial updates
   ) {
     const userIndex = this.users.findIndex((user) => user.id === id);
     if (userIndex === -1) {

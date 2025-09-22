@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users') // acts as a route prefix for all routes in this controller
 export class UsersController {
   constructor(private readonly usersService: UsersService) {} // Dependency injection of UsersService
@@ -47,7 +50,7 @@ export class UsersController {
       name: string;
       email: string;
       role: 'admin' | 'user' | 'superadmin';
-    },
+    }, // Using inline type for simplicity; ideally, use CreateUserDto
   ) {
     return this.usersService.create(user);
   }
@@ -58,12 +61,8 @@ export class UsersController {
   @Patch(':id') // handles PATCH requests to /users/:id
   update(
     @Param('id') id: string,
-    @Body()
-    userUpdate: Partial<{
-      name: string;
-      email: string;
-      role: 'admin' | 'user' | 'superadmin';
-    }>,
+    @Body(ValidationPipe) 
+    userUpdate: UpdateUserDto, // Using UpdateUserDto to allow partial updates
   ) {
     return this.usersService.update(+id, userUpdate);
   }
@@ -73,7 +72,7 @@ export class UsersController {
   //   return `This action removes a #${id} user`;
   // }
   @Delete(':id') // handles DELETE requests to /users/:id
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) { // ParseIntPipe automatically converts id to number and throws error if conversion fails-> no ned for +id [unary plus operator]
+    return this.usersService.remove(id);
   }
 }

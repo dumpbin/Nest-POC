@@ -6,15 +6,17 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
+  Query,Ip
 } from '@nestjs/common';
 import { UserapiService } from './userapi.service';
 import { Prisma } from '@prisma/client';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Logger } from '@nestjs/common';
 
 // @SkipThrottle() // Skip rate limiting for all routes in this controller
 @Controller('userapi')
 export class UserapiController {
+  private readonly logger = new Logger(UserapiController.name);
   constructor(private readonly userapiService: UserapiService) {}
 
   @Post()
@@ -23,7 +25,8 @@ export class UserapiController {
   }
   @SkipThrottle() // Exempt this route from rate limiting
   @Get()
-  findAll(@Query('role') role?: 'admin' | 'user') {
+  findAll(@Ip() ip: string, @Query('role') role?: 'admin' | 'user') {
+    this.logger.log(`Request  for all Employees from IP: ${ip}`);
     return this.userapiService.findAll(role);
   }
   @Throttle({ short: { ttl: 1000, limit: 1 } }) // Apply specific rate limiting to this route
